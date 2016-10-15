@@ -1,4 +1,4 @@
-* HTML terms: Elements, Tags, and Attributes.
+## HTML terms: Elements, Tags, and Attributes.
 
 ### Elements
 * <h1> through <h6> elements
