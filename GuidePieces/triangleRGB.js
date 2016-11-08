@@ -1,3 +1,25 @@
+var vertexShaderTest = 
+[
+    'precision medium float;',
+    '',
+    'attribute vec2 vertPosition;',
+    '',
+    'void main()',
+    '{',
+    '   gl_Position = vec4(vertPosition, 0.0, 1.0);',
+    '}'    
+].join('\n');
+
+var fragmentShaderText =
+[
+    'precision medium float;',
+    '',
+    'void main()',
+    '{',
+    '   gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);',
+    '}' 
+].join('\n');
+
 var onLoadShow = function ()    {
     console.log('This is working');
      
@@ -17,12 +39,41 @@ var onLoadShow = function ()    {
     
     // Adjust the canvas based on screen size
     {
-        canvas.width = 0.8 * window.innerWidth;
+        canvas.width = 0.9 * window.innerWidth;
         canvas.height = 0.7 * window.innerHeight;
         gl.viewport(0, 0, canvas.width, canvas.height);
     }
     
     gl.clearColor(0.75, 0.85, 0.8, 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);   
 }
+
+
+
+//function vertexShader(vertPosition, vertColor)  {
+//    return  {
+//        fragColor: vertColor,
+//        gl_Position: [vertPosition.x, vertPosition.y, 0.0, 1.0]
+//    };
+//}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
