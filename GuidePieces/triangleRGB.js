@@ -1,6 +1,6 @@
 var vertexShaderTest = 
 [
-    'precision medium float;',
+    'precision mediump float;',
     '',
     'attribute vec2 vertPosition;',
     '',
@@ -12,7 +12,7 @@ var vertexShaderTest =
 
 var fragmentShaderText =
 [
-    'precision medium float;',
+    'precision mediump float;',
     '',
     'void main()',
     '{',
@@ -46,6 +46,26 @@ var onLoadShow = function ()    {
     
     gl.clearColor(0.75, 0.85, 0.8, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);   
+    
+    //
+    // Create shaders
+    //
+    var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+    var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+    
+    gl.shaderSource(vertexShader, vertexShaderTest);
+    gl.shaderSource(fragmentShader, fragmentShaderText);
+    
+    gl.compileShader(vertexShader);
+    if(!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+        console.error('ERROR compiling vertex shader!', gl.getShaderInfoLog(vertexShader));
+        return;
+    }
+    gl.compileShader(fragmentShader);
+     if(!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+        console.error('ERROR compiling fragment shader!', gl.getShaderInfoLog(fragmentShader));
+        return;
+    }   
 }
 
 
