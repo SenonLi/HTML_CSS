@@ -15,8 +15,14 @@ var onLoadShow = function ()    {
         alert('Your browser does not support WebGL');
     }
     
-    canvas.width = 0.6 * window.innerWidth;
-    canvas.height = 0.6 * window.innerHeight;
+    // Adjust the canvas based on screen size
+    {
+        canvas.width = 0.6 * window.innerWidth;
+        canvas.height = 0.6 * window.innerHeight;
+        gl.viewport(0, 0, canvas.width, canvas.height);
+    }
     
+    gl.clearColor(0.75, 0.85, 0.8, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     
 }
