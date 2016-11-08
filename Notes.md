@@ -4,4 +4,5 @@
 * Could be put inside <body> tag, it's immediatly executed
 * So that the js could be loaded after the canvas element.
 * If putting the js inside <head> tag, there won't be any guarantee which one is called first.
+* Everything is 64bit floating point precision, whereas opengl expects 32bit
 
