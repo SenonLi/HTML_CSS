@@ -1,39 +1,43 @@
 var vertexShaderTest = [
     'precision mediump float;',
     '',
-    'attribute vec3 vertPosition;',
-    'attribute vec3 vertColor;',
+    'attribute vec3 position;',
+    'attribute vec2 texCoords;',
     '',
     'uniform mat4 model;',
     'uniform mat4 view;',
     'uniform mat4 projection;',
     '',
-    'varying vec3 toFragColor;',
+    'varying vec2 TexCoords;',
     '',
     'void main()',
     '{',
-    '   gl_Position = projection * view * model *  vec4(vertPosition, 1.0);',
-    '   toFragColor = vertColor;',
+    '   gl_Position = projection * view * model *  vec4(position, 1.0);',
+    '   TexCoords = texCoords;',
     '}'
 ].join('\n');
 
 var fragmentShaderText = [
     'precision mediump float;',
     '',
-    'varying vec3 toFragColor;',
+    'varying vec2 TexCoords;',
+    '',
+    'uniform sampler2D Texture;',
     '',
     'void main()',
     '{',
-    '   gl_FragColor = vec4(toFragColor, 1.0);',
+    '   gl_FragColor = texture2D(Texture, TexCoords);',
     '}'
 ].join('\n');
+
+var gl;
 
 var onLoadShowCubeRGB = function () {
     console.log('This is working');
 
     var canvas = document.getElementById('gameSurface');
 
-    var gl = canvas.getContext('webgl');
+    gl = canvas.getContext('webgl');
 
     // for IE web browser, need to go for 'experimental-webgl'
     if (!gl) {
@@ -53,11 +57,11 @@ var onLoadShowCubeRGB = function () {
     }
 
     gl.clearColor(0.75, 0.85, 0.8, 1.0);
-	gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
     gl.cullFace(gl.FRONT);
     gl.frontFace(gl.CCW);
-    
+
     //
     // Create shaders
     //
@@ -94,46 +98,47 @@ var onLoadShowCubeRGB = function () {
     }
 
     //
-    // Create buffer
+    //*******************************************************************
+    //*******************************************************************
     //
     var cubeVertices = [ //X,   Y             R,  G,  B
 			// Positions           // Texture Coords
-			-0.5, 0.5, -0.5, 1.0, 0.0, 0.0, // Front Top Right
-			-0.5, -0.5, -0.5, 1.0, 1.0, 0.0, // Front Bottom Right
-			0.5, -0.5, -0.5, 0.0, 1.0, 0.0, // Front Bottom Left
-			0.5, 0.5, -0.5, 0.0, 0.0, 0.0, // Front Top Left 
-        
-			0.5, 0.5, 0.5, 1.0, 0.0, 0.0, // Back Top Right
-			0.5, -0.5, 0.5, 1.0, 1.0, 0.0, // Back Bottom Right
-			-0.5, -0.5, 0.5, 0.0, 1.0, 0.0, // Back Bottom Left
-			-0.5, 0.5, 0.5, 0.0, 0.0,  0.0, // Back Top Left 
+			-0.5, 0.5, -0.5, 1.0, 0.0, // Front Top Right
+			-0.5, -0.5, -0.5, 1.0, 1.0, // Front Bottom Right
+			0.5, -0.5, -0.5, 0.0, 1.0, // Front Bottom Left
+			0.5, 0.5, -0.5, 0.0, 0.0, // Front Top Left 
 
-			-0.5, 0.5, 0.5, 1.0, 0.0, 0.0, // Left Top Right
-			-0.5, -0.5, 0.5, 1.0, 1.0, 0.0, // Left Bottom Right
-			-0.5, -0.5, -0.5, 0.0, 1.0, 0.0, // Left Bottom Left
-			-0.5, 0.5, -0.5, 0.0, 0.0, 0.0, // Left Top Left 
+			0.5, 0.5, 0.5, 1.0, 0.0, // Back Top Right
+			0.5, -0.5, 0.5, 1.0, 1.0, // Back Bottom Right
+			-0.5, -0.5, 0.5, 0.0, 1.0, // Back Bottom Left
+			-0.5, 0.5, 0.5, 0.0, 0.0, // Back Top Left 
 
-			0.5, 0.5, -0.5, 1.0, 0.0, 0.0, // Right Top Right
-			0.5, -0.5, -0.5, 1.0, 1.0, 0.0, // Right Bottom Right
-			0.5, -0.5, 0.5, 0.0, 1.0, 0.0, // Right Bottom Left
-			0.5, 0.5, 0.5, 0.0, 0.0, 0.0, // Right Top Left 
+			-0.5, 0.5, 0.5, 1.0, 0.0, // Left Top Right
+			-0.5, -0.5, 0.5, 1.0, 1.0, // Left Bottom Right
+			-0.5, -0.5, -0.5, 0.0, 1.0, // Left Bottom Left
+			-0.5, 0.5, -0.5, 0.0, 0.0, // Left Top Left 
 
-			0.5, 0.5, -0.5, 1.0, 0.0, 0.0, // Top Top Right
-			0.5, 0.5, 0.5, 1.0, 1.0, 0.0, // Top Bottom Right
-			-0.5, 0.5, 0.5, 0.0, 1.0, 0.0, // Top Bottom Left
-			-0.5, 0.5, -0.5, 0.0, 0.0, 0.0, // Top Top Left 
+			0.5, 0.5, -0.5, 1.0, 0.0, // Right Top Right
+			0.5, -0.5, -0.5, 1.0, 1.0, // Right Bottom Right
+			0.5, -0.5, 0.5, 0.0, 1.0, // Right Bottom Left
+			0.5, 0.5, 0.5, 0.0, 0.0, // Right Top Left 
 
-			-0.5, -0.5, -0.5, 1.0, 0.0, 0.0, // Bottom Top Right
-			-0.5, -0.5, 0.5, 1.0, 1.0, 0.0, // Bottom Bottom Right
-			0.5, -0.5, 0.5, 0.0, 1.0, 0.0, // Bottom Bottom Left
-			0.5, -0.5, -0.5, 0.0, 0.0, 0.0 // Bottom Top Left 
+			0.5, 0.5, -0.5, 1.0, 0.0, // Top Top Right
+			0.5, 0.5, 0.5, 1.0, 1.0, // Top Bottom Right
+			-0.5, 0.5, 0.5, 0.0, 1.0, // Top Bottom Left
+			-0.5, 0.5, -0.5, 0.0, 0.0, // Top Top Left 
+
+			-0.5, -0.5, -0.5, 1.0, 0.0, // Bottom Top Right
+			-0.5, -0.5, 0.5, 1.0, 1.0, // Bottom Bottom Right
+			0.5, -0.5, 0.5, 0.0, 1.0, // Bottom Bottom Left
+			0.5, -0.5, -0.5, 0.0, 0.0 // Bottom Top Left 
     ];
-    
-    var cubeIndices = [  // Note that we start from 0!
+
+    var cubeIndices = [ // Note that we start from 0!
         0, 1, 3, // Front First Triangle
         1, 2, 3, // Front Second Triangle
         4, 5, 7, // Back First Triangle
-        5, 6, 7,  // Back Second Triangle
+        5, 6, 7, // Back Second Triangle
         8, 9, 11, // Left First Triangle
         9, 10, 11, // Left Second Triangle
         12, 13, 15, // Right First Triangle
@@ -143,40 +148,65 @@ var onLoadShowCubeRGB = function () {
         20, 21, 23, // Bottom First Triangle
         21, 22, 23 // Bottom Second Triangle
     ];
-    
+
     var triangleVBO = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, triangleVBO);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cubeVertices), gl.STATIC_DRAW);
 
-    var verPositionLocation = gl.getAttribLocation(program, 'vertPosition');
-    var verColorLocation = gl.getAttribLocation(program, 'vertColor');
+    var verPositionLocation = gl.getAttribLocation(program, 'position');
+    var texPositionLocation = gl.getAttribLocation(program, 'texCoords');
 
     gl.vertexAttribPointer(
         verPositionLocation, // Attribute location
         3, // Number of elements per attribute
         gl.FLOAT, // Type of elements
         gl.FALSE, //
-        6 * Float32Array.BYTES_PER_ELEMENT, // Size of an indivisual vertex
+        5 * Float32Array.BYTES_PER_ELEMENT, // Size of an indivisual vertex
         0 // Offset from the beginning of a single vertex to this attribute
     )
     gl.enableVertexAttribArray(verPositionLocation);
 
-    gl.vertexAttribPointer(verColorLocation, 3, gl.FLOAT,
+    gl.vertexAttribPointer(texPositionLocation, 2, gl.FLOAT,
         gl.FALSE,
-        6 * Float32Array.BYTES_PER_ELEMENT,
+        5 * Float32Array.BYTES_PER_ELEMENT,
         3 * Float32Array.BYTES_PER_ELEMENT
     )
-    gl.enableVertexAttribArray(verColorLocation);
+    gl.enableVertexAttribArray(texPositionLocation);
 
 
     var triangleEBO = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, triangleEBO);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeIndices), gl.STATIC_DRAW);
 
-    
-    
-    
-    
+    //*******************************************************************
+    //*******************************************************************
+    var textureLau = gl.createTexture();
+    var textureSen = gl.createTexture();
+    var textureUKY = gl.createTexture();
+    var imageLau = new Image();
+    var imageSen = new Image();
+    var imageUKY = new Image();
+
+    imageUKY.src = "./Images/UKY.jpg";
+    imageLau.src = "./Images/Lau2.jpg";
+    imageSen.src = "./Images/SenSqaurePortrait.jpg";
+
+    imageLau.onload = function () {
+        handleTextureLoaded(imageLau, textureLau);
+    }
+    imageSen.onload = function () {
+        handleTextureLoaded(imageSen, textureSen);
+    }
+    imageUKY.onload = function () {
+        handleTextureLoaded(imageUKY, textureUKY);
+    }
+
+
+
+
+    //*******************************************************************
+    //*******************************************************************
+
     var model = new Float32Array(16);
     var view = new Float32Array(16);
     var projection = new Float32Array(16);
@@ -184,21 +214,13 @@ var onLoadShowCubeRGB = function () {
     mat4.identity(identity);
     mat4.lookAt(view, [1.0, 2.0, -2.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]);
     mat4.perspective(projection, glMatrix.toRadian(45.0), canvas.width / canvas.height, 0.1, 100);
-    
+
     var xRotation = new Float32Array(16);
     var yRotation = new Float32Array(16);
 
     //
     // Main render loop
     //
-    // Commen JavaScript Animation
-    ///*    var loop = function() {
-    //        updateWorld();
-    //        renderWorld();
-    //        if (running)    {
-    //            requestAnimationFrame(loop);
-    //        }
-    //    } */
     var angle = 0.0;
     var paintloop = function () {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -214,22 +236,40 @@ var onLoadShowCubeRGB = function () {
         gl.uniformMatrix4fv(gl.getUniformLocation(program, 'view'), gl.FALSE, view);
         gl.uniformMatrix4fv(gl.getUniformLocation(program, 'projection'), gl.FALSE, projection);
 
-//        gl.drawArrays(gl.TRIANGLES, 0, 3);
-		gl.drawElements(gl.TRIANGLES, cubeIndices.length, gl.UNSIGNED_SHORT, 0);
+        //		gl.drawElements(gl.TRIANGLES, cubeIndices.length, gl.UNSIGNED_SHORT, 0);
 
+        gl.activeTexture(gl.TEXTURE0);
+
+        gl.bindTexture(gl.TEXTURE_2D, textureSen);
+        gl.drawElements(gl.TRIANGLES, 12, gl.UNSIGNED_SHORT, 0);
+        
+        gl.bindTexture(gl.TEXTURE_2D, textureUKY);
+        gl.drawElements(gl.TRIANGLES, 12, gl.UNSIGNED_SHORT,
+            12 * Uint16Array.BYTES_PER_ELEMENT);
+        
+        gl.bindTexture(gl.TEXTURE_2D, textureLau);
+        gl.drawElements(gl.TRIANGLES, 12, gl.UNSIGNED_SHORT,
+            24 * Uint16Array.BYTES_PER_ELEMENT);
+
+        gl.bindTexture(gl.TEXTURE_2D, null);
+        gl.useProgram(null);
 
         requestAnimationFrame(paintloop);
     }
     requestAnimationFrame(paintloop);
-
-
 }
 
 
+function handleTextureLoaded(image, texture) {
+    console.log("handleTextureLoaded, image = " + image);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
 
-//function vertexShader(vertPosition, vertColor)  {
-//    return  {
-//        fragColor: vertColor,
-//        gl_Position: [vertPosition.x, vertPosition.y, 0.0, 1.0]
-//    };
-//}
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,
+        gl.UNSIGNED_BYTE, image);
+
+    gl.bindTexture(gl.TEXTURE_2D, null);
+}
