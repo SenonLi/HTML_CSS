@@ -17,8 +17,8 @@ var onLoadShow = function ()    {
     
     // Adjust the canvas based on screen size
     {
-        canvas.width = 0.6 * window.innerWidth;
-        canvas.height = 0.6 * window.innerHeight;
+        canvas.width = 0.8 * window.innerWidth;
+        canvas.height = 0.7 * window.innerHeight;
         gl.viewport(0, 0, canvas.width, canvas.height);
     }
     
