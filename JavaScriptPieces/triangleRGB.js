@@ -2,14 +2,18 @@ var vertexShaderTest =
 [
     'precision mediump float;',
     '',
-    'attribute vec2 vertPosition;',
+    'attribute vec3 vertPosition;',
     'attribute vec3 vertColor;',
+    '',
+    'uniform mat4 model;',
+    'uniform mat4 view;',
+    'uniform mat4 projection;',
     '',
     'varying vec3 toFragColor;',
     '',
     'void main()',
     '{',
-    '   gl_Position = vec4(vertPosition, 0.0, 1.0);',
+    '   gl_Position = projection * model * view * vec4(vertPosition, 1.0);',
     '   toFragColor = vertColor;',
     '}'    
 ].join('\n');
@@ -92,10 +96,10 @@ var onLoadShow = function ()    {
     // Create buffer
     //
     var triangleVertices =
-    [  //X,   Y     R,  G,  B
-        0.0, 0.5,   1.0, 0.0, 0.0,
-        -0.5, -0.5, 0.0, 1.0, 0.0,
-        0.5, -0.5,  0.0, 0.0, 1.0
+    [  //X,   Y             R,  G,  B
+        0.0, 0.5, -0.0,      1.0, 0.0, 0.0,
+        -0.5, -0.5, -0.0,    0.0, 1.0, 0.0,
+        0.5, -0.5, -0.0,     0.0, 0.0, 1.0
     ];
     
     var triangleVBO = gl.createBuffer();
@@ -107,21 +111,35 @@ var onLoadShow = function ()    {
     
     gl.vertexAttribPointer(
         verPositionLocation, // Attribute location
-        2,  // Number of elements per attribute
+        3,  // Number of elements per attribute
         gl.FLOAT, // Type of elements
         gl.FALSE, //
-        5 * Float32Array.BYTES_PER_ELEMENT,// Size of an indivisual vertex
+        6 * Float32Array.BYTES_PER_ELEMENT,// Size of an indivisual vertex
         0// Offset from the beginning of a single vertex to this attribute
     )
     gl.enableVertexAttribArray(verPositionLocation);
     
     gl.vertexAttribPointer(verColorLocation, 3, gl.FLOAT,
         gl.FALSE,  
-        5 * Float32Array.BYTES_PER_ELEMENT,
-        2 * Float32Array.BYTES_PER_ELEMENT
+        6 * Float32Array.BYTES_PER_ELEMENT,
+        3 * Float32Array.BYTES_PER_ELEMENT
     )
     gl.enableVertexAttribArray(verColorLocation);
     
+   
+    gl.useProgram(program);
+
+    var model = new Float32Array(16);
+    var view = new Float32Array(16);
+    var projection = new Float32Array(16);
+
+    mat4.identity(model);
+    mat4.lookAt(view, [0.0, 0.0, 2.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]);
+    mat4.perspective(projection, glMatrix.toRadian(45.0), canvas.width / canvas.height, 0.1, 100);
+
+    gl.uniformMatrix4fv(gl.getUniformLocation(program, 'model'), gl.FALSE, model);   
+    gl.uniformMatrix4fv(gl.getUniformLocation(program, 'view'), gl.FALSE, view);  
+    gl.uniformMatrix4fv(gl.getUniformLocation(program, 'projection'), gl.FALSE, projection);
     //
     // Main render loop
     //
@@ -135,7 +153,6 @@ var onLoadShow = function ()    {
 //    }
 //    requestAnimationFrame(loop);*/
     
-    gl.useProgram(program);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
         
 }
