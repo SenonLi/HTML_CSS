@@ -3,10 +3,14 @@ var vertexShaderTest =
     'precision mediump float;',
     '',
     'attribute vec2 vertPosition;',
+    'attribute vec3 vertColor;',
+    '',
+    'varying vec3 toFragColor;',
     '',
     'void main()',
     '{',
     '   gl_Position = vec4(vertPosition, 0.0, 1.0);',
+    '   toFragColor = vertColor;',
     '}'    
 ].join('\n');
 
@@ -14,9 +18,11 @@ var fragmentShaderText =
 [
     'precision mediump float;',
     '',
+    'varying vec3 toFragColor;',
+    '',
     'void main()',
     '{',
-    '   gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);',
+    '   gl_FragColor = vec4(toFragColor, 1.0);',
     '}' 
 ].join('\n');
 
@@ -86,10 +92,10 @@ var onLoadShow = function ()    {
     // Create buffer
     //
     var triangleVertices =
-    [  //X,   Y
-        0.0, 0.5,
-        -0.5, -0.5,
-        0.5, -0.5
+    [  //X,   Y     R,  G,  B
+        0.0, 0.5,   1.0, 0.0, 0.0,
+        -0.5, -0.5, 0.0, 1.0, 0.0,
+        0.5, -0.5,  0.0, 0.0, 1.0
     ];
     
     var triangleVBO = gl.createBuffer();
@@ -97,16 +103,24 @@ var onLoadShow = function ()    {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVertices), gl.STATIC_DRAW);
     
     var verPositionLocation = gl.getAttribLocation(program, 'vertPosition');
+    var verColorLocation = gl.getAttribLocation(program, 'vertColor');
     
     gl.vertexAttribPointer(
         verPositionLocation, // Attribute location
         2,  // Number of elements per attribute
         gl.FLOAT, // Type of elements
         gl.FALSE, //
-        2 * Float32Array.BYTES_PER_ELEMENT,// Size of an indivisual vertex
+        5 * Float32Array.BYTES_PER_ELEMENT,// Size of an indivisual vertex
         0// Offset from the beginning of a single vertex to this attribute
     )
     gl.enableVertexAttribArray(verPositionLocation);
+    
+    gl.vertexAttribPointer(verColorLocation, 3, gl.FLOAT,
+        gl.FALSE,  
+        5 * Float32Array.BYTES_PER_ELEMENT,
+        2 * Float32Array.BYTES_PER_ELEMENT
+    )
+    gl.enableVertexAttribArray(verColorLocation);
     
     //
     // Main render loop
@@ -123,9 +137,7 @@ var onLoadShow = function ()    {
     
     gl.useProgram(program);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
-    
-    
-    
+        
 }
 
 
