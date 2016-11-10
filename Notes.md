@@ -1,3 +1,8 @@
+## Next
+* follow the tutorial, learn how to debug and program in JavaScript
+
+
+
 ## JavaScript
 
 * JavaScript is immediatly loaded as soon as the browser sees it.
