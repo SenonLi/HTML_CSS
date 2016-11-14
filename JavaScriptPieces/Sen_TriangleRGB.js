@@ -28,7 +28,7 @@ var fragmentShaderText = [
     '}'
 ].join('\n');
 
-var onLoadShow = function () {
+var onLoadShowTriangleRGB = function () {
     console.log('TriangleRGB onLoadShow is working');
 
     var canvas = document.getElementById('gameSurface');

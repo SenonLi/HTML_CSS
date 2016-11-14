@@ -32,7 +32,7 @@ var fragmentShaderText = [
 
 var gl;
 
-var onLoadShowCubeRGB = function () {
+var onLoadShowCube = function () {
     console.log('This is working');
 
     var canvas = document.getElementById('gameSurface');
@@ -187,9 +187,9 @@ var onLoadShowCubeRGB = function () {
     var imageSen = new Image();
     var imageUKY = new Image();
 
-    imageUKY.src = "./Images/UKY.jpg";
-    imageLau.src = "./Images/Lau2.jpg";
-    imageSen.src = "./Images/SenSqaurePortrait.jpg";
+    imageUKY.src = "../Images/UKY.jpg";
+    imageLau.src = "../Images/Lau2.jpg";
+    imageSen.src = "../Images/SenSqaurePortrait.jpg";
 
     imageLau.onload = function () {
         handleTextureLoaded(imageLau, textureLau);
