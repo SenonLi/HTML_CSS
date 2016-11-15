@@ -198,10 +198,10 @@ var paintJSON_Model = function (vertexShaderText, fragmentShaderText, SusanImage
 
         gl.uniform3f(gl.getUniformLocation(program, 'ambientLightIntensity'),
                      0.5, 0.5, 0.9);
-        gl.uniform3f(gl.getUniformLocation(program, 'sunlightIntensity'),
+        gl.uniform3f(gl.getUniformLocation(program, 'light.color'),
                      0.7, 0.6, 0.9);
-        gl.uniform3f(gl.getUniformLocation(program, 'sunlightDirection'),
-                     1.0, -4.0, 0.0);
+        gl.uniform3f(gl.getUniformLocation(program, 'light.direction'),
+                     1.0, 4.0, 0.0);
 
         
         gl.uniformMatrix4fv(gl.getUniformLocation(program, 'model'), gl.FALSE, model);
