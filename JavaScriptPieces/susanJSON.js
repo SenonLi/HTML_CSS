@@ -1,6 +1,7 @@
 var gl;
+var meshLinkModel;
 
-var onLoadShowMeshes = function ()    {
+var onLoadShowJSON_Model = function ()    {
     loadTextResource('../Shaders/Sen_3D_TextureCoords.vert',
         function (verShErr, verShText) {
             if (verShErr) {
@@ -13,6 +14,8 @@ var onLoadShowMeshes = function ()    {
                             alert('Fatal error getting fragment shader (see console)');
                             console.error(fragShErr);
                         }else   {
+                            // Inside the JSON model: 
+                            // vertices, textureCoords, face (indices)
                             loadJSONresourse('../Models/Susan/Susan.json',
                                 function (modelErr, modelObj) {
                                     if (modelErr) {
@@ -25,7 +28,7 @@ var onLoadShowMeshes = function ()    {
                                                     alert('Fatal error getting Susan texture (see console)');
                                                     console.error(imgErr);
                                                 }else   {
-                                                    paintMeshes(verShText, fragShText, img, modelObj);
+                                                    paintJSON_Model(verShText, fragShText, img, modelObj);
                                                 }
                                             }
                                         );
@@ -41,11 +44,12 @@ var onLoadShowMeshes = function ()    {
     );
 }
 
-var paintMeshes = function (vertexShaderText, fragmentShaderText, SusanImage, SusanModel) {
+var paintJSON_Model = function (vertexShaderText, fragmentShaderText, SusanImage, SusanModel) {
     console.log('This is working');
 
+    meshLinkModel = SusanModel;
+    
     var canvas = document.getElementById('gameSurface');
-
     gl = canvas.getContext('webgl');
 
     // for IE web browser, need to go for 'experimental-webgl'
@@ -67,9 +71,6 @@ var paintMeshes = function (vertexShaderText, fragmentShaderText, SusanImage, Su
 
     gl.clearColor(0.75, 0.85, 0.8, 1.0);
     gl.enable(gl.DEPTH_TEST);
-    gl.enable(gl.CULL_FACE);
-    gl.cullFace(gl.FRONT);
-    gl.frontFace(gl.CCW);
 
     //
     // Create shaders
@@ -109,107 +110,50 @@ var paintMeshes = function (vertexShaderText, fragmentShaderText, SusanImage, Su
     //
     //*******************************************************************
     //*******************************************************************
-    //
-    var cubeVertices = [ //X,   Y             R,  G,  B
-			// Positions           // Texture Coords
-			-0.5, 0.5, -0.5, 1.0, 0.0, // Front Top Right
-			-0.5, -0.5, -0.5, 1.0, 1.0, // Front Bottom Right
-			0.5, -0.5, -0.5, 0.0, 1.0, // Front Bottom Left
-			0.5, 0.5, -0.5, 0.0, 0.0, // Front Top Left 
+    var susanVertices = SusanModel.meshes[0].vertices;
+    var susanTexCoords = SusanModel.meshes[0].texturecoords[0];
+    var susanIndices = [].concat.apply([], SusanModel.meshes[0].faces);
 
-			0.5, 0.5, 0.5, 1.0, 0.0, // Back Top Right
-			0.5, -0.5, 0.5, 1.0, 1.0, // Back Bottom Right
-			-0.5, -0.5, 0.5, 0.0, 1.0, // Back Bottom Left
-			-0.5, 0.5, 0.5, 0.0, 0.0, // Back Top Left 
-
-			-0.5, 0.5, 0.5, 1.0, 0.0, // Left Top Right
-			-0.5, -0.5, 0.5, 1.0, 1.0, // Left Bottom Right
-			-0.5, -0.5, -0.5, 0.0, 1.0, // Left Bottom Left
-			-0.5, 0.5, -0.5, 0.0, 0.0, // Left Top Left 
-
-			0.5, 0.5, -0.5, 1.0, 0.0, // Right Top Right
-			0.5, -0.5, -0.5, 1.0, 1.0, // Right Bottom Right
-			0.5, -0.5, 0.5, 0.0, 1.0, // Right Bottom Left
-			0.5, 0.5, 0.5, 0.0, 0.0, // Right Top Left 
-
-			0.5, 0.5, -0.5, 1.0, 0.0, // Top Top Right
-			0.5, 0.5, 0.5, 1.0, 1.0, // Top Bottom Right
-			-0.5, 0.5, 0.5, 0.0, 1.0, // Top Bottom Left
-			-0.5, 0.5, -0.5, 0.0, 0.0, // Top Top Left 
-
-			-0.5, -0.5, -0.5, 1.0, 0.0, // Bottom Top Right
-			-0.5, -0.5, 0.5, 1.0, 1.0, // Bottom Bottom Right
-			0.5, -0.5, 0.5, 0.0, 1.0, // Bottom Bottom Left
-			0.5, -0.5, -0.5, 0.0, 0.0 // Bottom Top Left 
-    ];
-
-    var cubeIndices = [ // Note that we start from 0!
-        0, 1, 3, // Front First Triangle
-        1, 2, 3, // Front Second Triangle
-        4, 5, 7, // Back First Triangle
-        5, 6, 7, // Back Second Triangle
-        8, 9, 11, // Left First Triangle
-        9, 10, 11, // Left Second Triangle
-        12, 13, 15, // Right First Triangle
-        13, 14, 15, // Right Second Triangle
-        16, 17, 19, // Top First Triangle
-        17, 18, 19, // Top Second Triangle
-        20, 21, 23, // Bottom First Triangle
-        21, 22, 23 // Bottom Second Triangle
-    ];
-
-    var triangleVBO = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, triangleVBO);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cubeVertices), gl.STATIC_DRAW);
+    var susanPositionVBO = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, susanPositionVBO);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(susanVertices), gl.STATIC_DRAW);
 
     var verPositionLocation = gl.getAttribLocation(program, 'position');
-    var texPositionLocation = gl.getAttribLocation(program, 'texCoords');
-
     gl.vertexAttribPointer(
         verPositionLocation, // Attribute location
         3, // Number of elements per attribute
         gl.FLOAT, // Type of elements
         gl.FALSE, //
-        5 * Float32Array.BYTES_PER_ELEMENT, // Size of an indivisual vertex
+        3 * Float32Array.BYTES_PER_ELEMENT, // Size of an indivisual vertex
         0 // Offset from the beginning of a single vertex to this attribute
-    )
+    );    
     gl.enableVertexAttribArray(verPositionLocation);
 
+    //*******************************************************************
+    var susanTexCoordsVBO = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, susanTexCoordsVBO);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(susanTexCoords), gl.STATIC_DRAW);
+    
+    var texPositionLocation = gl.getAttribLocation(program, 'texCoords');
     gl.vertexAttribPointer(texPositionLocation, 2, gl.FLOAT,
         gl.FALSE,
-        5 * Float32Array.BYTES_PER_ELEMENT,
-        3 * Float32Array.BYTES_PER_ELEMENT
-    )
+        2 * Float32Array.BYTES_PER_ELEMENT,
+        0
+    );
     gl.enableVertexAttribArray(texPositionLocation);
 
 
-    var triangleEBO = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, triangleEBO);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeIndices), gl.STATIC_DRAW);
+    var susanEBO = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, susanEBO);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(susanIndices), gl.STATIC_DRAW);
 
     //*******************************************************************
     //*******************************************************************
-    var textureLau = gl.createTexture();
-    var textureSen = gl.createTexture();
-    var textureUKY = gl.createTexture();
-    var imageLau = new Image();
-    var imageSen = new Image();
-    var imageUKY = new Image();
 
-    imageUKY.src = "../Images/UKY.jpg";
-    imageLau.src = "../Images/Lau2.jpg";
-    imageSen.src = "../Images/SenSqaurePortrait.jpg";
-
-    imageLau.onload = function () {
-        handleTextureLoaded(imageLau, textureLau);
-    }
-    imageSen.onload = function () {
-        handleTextureLoaded(imageSen, textureSen);
-    }
-    imageUKY.onload = function () {
-        handleTextureLoaded(imageUKY, textureUKY);
-    }
-
+    var textureSusan = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, textureSusan);
+	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    handleTextureLoaded(SusanImage, textureSusan);
 
 
 
@@ -221,7 +165,7 @@ var paintMeshes = function (vertexShaderText, fragmentShaderText, SusanImage, Su
     var projection = new Float32Array(16);
     var identity = new Float32Array(16);
     mat4.identity(identity);
-    mat4.lookAt(view, [1.0, 2.0, -2.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]);
+    mat4.lookAt(view, [1.0, 2.0, 4.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]);
     mat4.perspective(projection, glMatrix.toRadian(45.0), canvas.width / canvas.height, 0.1, 100);
 
     var xRotation = new Float32Array(16);
@@ -245,20 +189,11 @@ var paintMeshes = function (vertexShaderText, fragmentShaderText, SusanImage, Su
         gl.uniformMatrix4fv(gl.getUniformLocation(program, 'view'), gl.FALSE, view);
         gl.uniformMatrix4fv(gl.getUniformLocation(program, 'projection'), gl.FALSE, projection);
 
-        //		gl.drawElements(gl.TRIANGLES, cubeIndices.length, gl.UNSIGNED_SHORT, 0);
-
+        
         gl.activeTexture(gl.TEXTURE0);
 
-        gl.bindTexture(gl.TEXTURE_2D, textureSen);
-        gl.drawElements(gl.TRIANGLES, 12, gl.UNSIGNED_SHORT, 0);
-        
-        gl.bindTexture(gl.TEXTURE_2D, textureUKY);
-        gl.drawElements(gl.TRIANGLES, 12, gl.UNSIGNED_SHORT,
-            12 * Uint16Array.BYTES_PER_ELEMENT);
-        
-        gl.bindTexture(gl.TEXTURE_2D, textureLau);
-        gl.drawElements(gl.TRIANGLES, 12, gl.UNSIGNED_SHORT,
-            24 * Uint16Array.BYTES_PER_ELEMENT);
+        gl.bindTexture(gl.TEXTURE_2D, textureSusan);
+		gl.drawElements(gl.TRIANGLES, susanIndices.length, gl.UNSIGNED_SHORT, 0);
 
         gl.bindTexture(gl.TEXTURE_2D, null);
         gl.useProgram(null);
