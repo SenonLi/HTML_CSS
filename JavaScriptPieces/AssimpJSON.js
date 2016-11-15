@@ -1,6 +1,6 @@
 var gl;
 
-var onLoadShowCube = function ()    {
+var onLoadShowJSONmeshes = function ()    {
     loadTextResource('../Shaders/Sen_3D_TextureCoords.vert',
         function (verShErr, verShText) {
             if (verShErr) {

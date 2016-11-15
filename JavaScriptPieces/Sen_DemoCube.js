@@ -1,28 +1,38 @@
+var vertexShaderTest = [
+    'precision mediump float;',
+    '',
+    'attribute vec3 position;',
+    'attribute vec2 texCoords;',
+    '',
+    'uniform mat4 model;',
+    'uniform mat4 view;',
+    'uniform mat4 projection;',
+    '',
+    'varying vec2 TexCoords;',
+    '',
+    'void main()',
+    '{',
+    '   gl_Position = projection * view * model *  vec4(position, 1.0);',
+    '   TexCoords = texCoords;',
+    '}'
+].join('\n');
+
+var fragmentShaderText = [
+    'precision mediump float;',
+    '',
+    'varying vec2 TexCoords;',
+    '',
+    'uniform sampler2D Texture;',
+    '',
+    'void main()',
+    '{',
+    '   gl_FragColor = texture2D(Texture, TexCoords);',
+    '}'
+].join('\n');
+
 var gl;
 
-var onLoadShowCube = function ()    {
-    loadTextResource('../Shaders/Sen_3D_TextureCoords.vert',
-        function (verShErr, verShText) {
-            if (verShErr) {
-                alert('Fatal error getting vertex shader (see console)');
-                console.error(verShErr);
-            } else {
-                loadTextResource('../Shaders/Sen_TextureCoords.frag',
-                    function (fragShErr, fragShText) {
-                        if (fragShErr)  {
-                            alert('Fatal error getting fragment shader (see console)');
-                            console.error(fragShErr);
-                        }else   {
-                            paintCube(verShText, fragShText);
-                        }
-                    }
-                );
-            }
-        }
-    );
-}
-
-var paintCube = function (vertexShaderText, fragmentShaderText) {
+var onLoadShowCube = function () {
     console.log('This is working');
 
     var canvas = document.getElementById('gameSurface');
@@ -58,7 +68,7 @@ var paintCube = function (vertexShaderText, fragmentShaderText) {
     var vertexShader = gl.createShader(gl.VERTEX_SHADER);
     var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
 
-    gl.shaderSource(vertexShader, vertexShaderText);
+    gl.shaderSource(vertexShader, vertexShaderTest);
     gl.shaderSource(fragmentShader, fragmentShaderText);
 
     gl.compileShader(vertexShader);
