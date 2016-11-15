@@ -1,6 +1,6 @@
 var gl;
 
-var onLoadShowJSONmeshes = function ()    {
+var onLoadShowMeshes = function ()    {
     loadTextResource('../Shaders/Sen_3D_TextureCoords.vert',
         function (verShErr, verShText) {
             if (verShErr) {
@@ -13,7 +13,26 @@ var onLoadShowJSONmeshes = function ()    {
                             alert('Fatal error getting fragment shader (see console)');
                             console.error(fragShErr);
                         }else   {
-                            paintCube(verShText, fragShText);
+                            loadJSONresourse('../Models/Susan/Susan.json',
+                                function (modelErr, modelObj) {
+                                    if (modelErr) {
+                                        alert('Fatal error getting Susan model (see consol)');
+                                        console.error(modelErr);
+                                    } else {
+                                        loadImage('../Models/Susan/SusanTexture.png',
+                                            function (imgErr, img) {
+                                                if (imgErr) {
+                                                    alert('Fatal error getting Susan texture (see console)');
+                                                    console.error(imgErr);
+                                                }else   {
+                                                    paintMeshes(verShText, fragShText, img, modelObj);
+                                                }
+                                            }
+                                        );
+                                    }
+                                }
+                            );   
+                            //paintCube(verShText, fragShText);
                         }
                     }
                 );
@@ -22,7 +41,7 @@ var onLoadShowJSONmeshes = function ()    {
     );
 }
 
-var paintCube = function (vertexShaderText, fragmentShaderText) {
+var paintMeshes = function (vertexShaderText, fragmentShaderText, SusanImage, SusanModel) {
     console.log('This is working');
 
     var canvas = document.getElementById('gameSurface');
