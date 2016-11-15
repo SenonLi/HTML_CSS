@@ -2,13 +2,13 @@ var gl;
 var meshLinkModel;
 
 var onLoadShowJSON_Model = function ()    {
-    loadTextResource('../Shaders/Sen_3D_TextureCoords.vert',
+    loadTextResource('../Shaders/Sen_3D_NormalTexCoords.vert',
         function (verShErr, verShText) {
             if (verShErr) {
                 alert('Fatal error getting vertex shader (see console)');
                 console.error(verShErr);
             } else {
-                loadTextResource('../Shaders/Sen_TextureCoords.frag',
+                loadTextResource('../Shaders/Sen_LightingTexCoords.frag',
                     function (fragShErr, fragShText) {
                         if (fragShErr)  {
                             alert('Fatal error getting fragment shader (see console)');
@@ -113,6 +113,7 @@ var paintJSON_Model = function (vertexShaderText, fragmentShaderText, SusanImage
     var susanVertices = SusanModel.meshes[0].vertices;
     var susanTexCoords = SusanModel.meshes[0].texturecoords[0];
     var susanIndices = [].concat.apply([], SusanModel.meshes[0].faces);
+    var susanNormals = SusanModel.meshes[0].normals;
     
     var susanPositionVBO = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, susanPositionVBO);
@@ -143,6 +144,18 @@ var paintJSON_Model = function (vertexShaderText, fragmentShaderText, SusanImage
     gl.enableVertexAttribArray(texPositionLocation);
 
     //*******************************************************************
+    var susanNormalsVBO = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, susanNormalsVBO);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(susanNormals), gl.STATIC_DRAW);
+    
+    var normalLocation = gl.getAttribLocation(program, 'normals');
+    gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT,
+        gl.FALSE,
+        3 * Float32Array.BYTES_PER_ELEMENT,
+        0
+    );
+    gl.enableVertexAttribArray(normalLocation);
+    //*******************************************************************
     var susanEBO = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, susanEBO);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(susanIndices), gl.STATIC_DRAW);
@@ -155,8 +168,6 @@ var paintJSON_Model = function (vertexShaderText, fragmentShaderText, SusanImage
 	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     handleTextureLoaded(SusanImage, textureSusan);
 
-
-
     //*******************************************************************
     //*******************************************************************
 
@@ -165,7 +176,7 @@ var paintJSON_Model = function (vertexShaderText, fragmentShaderText, SusanImage
     var projection = new Float32Array(16);
     var identity = new Float32Array(16);
     mat4.identity(identity);
-    mat4.lookAt(view, [1.0, 2.0, 4.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]);
+    mat4.lookAt(view, [1.0, 2.0, -4.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]);
     mat4.perspective(projection, glMatrix.toRadian(45.0), canvas.width / canvas.height, 0.1, 100);
 
     var xRotation = new Float32Array(16);
@@ -185,6 +196,14 @@ var paintJSON_Model = function (vertexShaderText, fragmentShaderText, SusanImage
 
         gl.useProgram(program);
 
+        gl.uniform3f(gl.getUniformLocation(program, 'ambientLightIntensity'),
+                     0.5, 0.5, 0.9);
+        gl.uniform3f(gl.getUniformLocation(program, 'sunlightIntensity'),
+                     0.7, 0.6, 0.9);
+        gl.uniform3f(gl.getUniformLocation(program, 'sunlightDirection'),
+                     1.0, -4.0, 0.0);
+
+        
         gl.uniformMatrix4fv(gl.getUniformLocation(program, 'model'), gl.FALSE, model);
         gl.uniformMatrix4fv(gl.getUniformLocation(program, 'view'), gl.FALSE, view);
         gl.uniformMatrix4fv(gl.getUniformLocation(program, 'projection'), gl.FALSE, projection);

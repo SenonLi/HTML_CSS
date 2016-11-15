@@ -10,6 +10,11 @@
 * Remember, inside the vertexShader, the 3D paint math has to be model -> view -> projection from going from right to the left.
 * above means:     gl_Position = projection * view * model * vec4(position, 1.0f);
 
+## Phone Lighting
+* Ambient
+* Diffuse
+* Specular
+
 
 ## XMLHttpRequest
 * The XMLHttpRequest object is used to exchange data with a server behind the scenes.
